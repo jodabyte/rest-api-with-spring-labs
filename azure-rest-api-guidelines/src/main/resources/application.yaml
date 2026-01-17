@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: azure-rest-api-guidelines
+
+  jpa:
+    hibernate:
+      # Automatically create database tables based on entity definitions
+      ddl-auto: create
+    # Defer the database population until after hibernate created the schema
+    defer-datasource-initialization: true
