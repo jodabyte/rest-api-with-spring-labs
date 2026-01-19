@@ -1,9 +1,6 @@
 package de.jodabyte.restapilabs.azure.service.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.util.HashSet;
@@ -14,6 +11,7 @@ import java.util.Set;
 public class Product {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column(nullable = false, unique = true)

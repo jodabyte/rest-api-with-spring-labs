@@ -19,4 +19,12 @@ public class ProductService {
         return this.productRepository.findAll();
     }
 
+    public Product getProductByReference(String reference) {
+        return this.productRepository.findByReference(reference);
+    }
+
+    public String createProduct(Product productToPersist) {
+        Product persistedProduct = this.productRepository.save(productToPersist);
+        return persistedProduct.getReference();
+    }
 }
