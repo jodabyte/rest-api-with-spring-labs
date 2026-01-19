@@ -1,24 +1,38 @@
 package de.jodabyte.restapilabs.azure.api;
 
+import de.jodabyte.restapilabs.azure.api.dto.ProductDto;
+import de.jodabyte.restapilabs.azure.api.dto.ProductMapper;
 import de.jodabyte.restapilabs.azure.service.ProductService;
-import de.jodabyte.restapilabs.azure.service.model.Product;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-public class ProductController {
+@RequestMapping("/products")
+public class ProductController extends BaseRestController {
 
     private final ProductService productService;
+    private final ProductMapper productMapper;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, ProductMapper productMapper) {
         this.productService = productService;
-    }
-    
-    @GetMapping("/products")
-    public List<Product> getAllProducts() {
-        return this.productService.getProducts();
+        this.productMapper = productMapper;
     }
 
+    @GetMapping
+    public List<ProductDto> getAllProducts() {
+        return this.productMapper.map(this.productService.getProducts());
+    }
+
+    @GetMapping("/{reference}")
+    public ProductDto getProductByReference(@PathVariable String reference) {
+        return this.productMapper.map(this.productService.getProductByReference(reference));
+    }
+
+    @PostMapping
+    public ResponseEntity<Void> createProduct(@RequestBody ProductDto dto) {
+        var productReference = this.productService.createProduct(this.productMapper.map(dto));
+        return getRepeatabilityResponse("getProductByReference", productReference);
+    }
 }
