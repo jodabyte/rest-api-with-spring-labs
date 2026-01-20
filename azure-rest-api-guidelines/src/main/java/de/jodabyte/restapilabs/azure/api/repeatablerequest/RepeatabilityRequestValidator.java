@@ -1,11 +1,14 @@
 package de.jodabyte.restapilabs.azure.api.repeatablerequest;
 
+import de.jodabyte.restapilabs.azure.api.repeatablerequest.model.RepeatableRequest;
+import de.jodabyte.restapilabs.azure.api.repeatablerequest.model.RepeatableResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.time.DateTimeException;
@@ -28,21 +31,35 @@ import static de.jodabyte.restapilabs.azure.api.repeatablerequest.RepeatabilityC
 public class RepeatabilityRequestValidator {
 
     private final HttpServletRequest request;
+    private final RepeatabilityService cache;
 
-    public RepeatabilityRequestValidator(HttpServletRequest request) {
+    public RepeatabilityRequestValidator(HttpServletRequest request, RepeatabilityService cache) {
         this.request = request;
+        this.cache = cache;
     }
 
     // TODO params
 
     @Around(value = "@annotation(org.springframework.web.bind.annotation.PostMapping)")
     public Object validate(ProceedingJoinPoint pjp) throws Throwable {
-        log.info("Validating");
         RepeatableRequest repeatableRequest = getRepeatableRequest();
+        Optional<RepeatableResponse> cachedResponse = this.cache.findResponse(repeatableRequest);
 
-        Object retVal = pjp.proceed();
+        if (cachedResponse.isPresent()) {
+            log.info("Returning cached response for repeatable request: {}", repeatableRequest);
+            return cachedResponse.get().response();
+        }
 
-        return retVal;
+        Object result = pjp.proceed();
+
+        if (result instanceof ResponseEntity<?> response) {
+            this.cache.saveResponse(repeatableRequest, new RepeatableResponse(response));
+            log.info("Cached response for repeatable request: {}", repeatableRequest);
+        } else {
+            log.warn("Response is not of type ResponseEntity, cannot cache response for repeatable request: {}", repeatableRequest);
+        }
+
+        return result;
     }
 
     /**

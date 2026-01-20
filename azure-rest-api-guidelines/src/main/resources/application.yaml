@@ -8,3 +8,9 @@ spring:
       ddl-auto: create
     # Defer the database population until after hibernate created the schema
     defer-datasource-initialization: true
+
+  # Enable In-Memory Caching
+  cache:
+    cache-names: "REPEATABILITY_CACHE"
+    caffeine:
+      spec: "expireAfterWrite=5m"

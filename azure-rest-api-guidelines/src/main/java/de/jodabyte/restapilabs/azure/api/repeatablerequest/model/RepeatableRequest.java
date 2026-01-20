@@ -1,4 +1,4 @@
-package de.jodabyte.restapilabs.azure.api.repeatablerequest;
+package de.jodabyte.restapilabs.azure.api.repeatablerequest.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

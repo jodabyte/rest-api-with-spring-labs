@@ -18,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import static de.jodabyte.restapilabs.azure.api.repeatablerequest.RepeatabilityContract.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -38,7 +39,7 @@ class RepeatablePOSTRequestsTests {
             Then a BadRequest status response is returned with the REJECTED header value.
             """)
     void missingMandatoryHeaders() throws Exception {
-        this.sut.perform(getPreparedRequest())
+        this.sut.perform(getPreparedRequest(getProductDto("missingMandatoryHeaders")))
                 .andExpect(status().isBadRequest())
                 .andExpect(header().stringValues(HEADER_RESULT, REJECTED));
     }
@@ -50,11 +51,34 @@ class RepeatablePOSTRequestsTests {
             Then a Created status response is returned with the ACCEPTED header value.
             """)
     void validMandatoryHeaders() throws Exception {
-        this.sut.perform(getPreparedRequest()
+        this.sut.perform(getPreparedRequest(getProductDto("validMandatoryHeaders"))
                         .header(HEADER_REQUEST_ID, getRequestId())
                         .header(HEADER_FIRST_SENT, getFirstSend()))
                 .andExpect(status().isCreated())
                 .andExpect(header().stringValues(HEADER_RESULT, ACCEPTED));
+    }
+
+    @Test
+    void responsesAreCached() throws Exception {
+        var request = getPreparedRequest(getProductDto("responsesAreCached"))
+                .header(HEADER_REQUEST_ID, getRequestId())
+                .header(HEADER_FIRST_SENT, getFirstSend());
+
+        String actual = this.sut.perform(request)
+                .andExpect(status().isCreated())
+                .andExpect(header().stringValues(HEADER_RESULT, ACCEPTED))
+                .andReturn()
+                .getResponse()
+                .getHeader("Location");
+
+        String expected = this.sut.perform(request)
+                .andExpect(status().isCreated())
+                .andExpect(header().stringValues(HEADER_RESULT, ACCEPTED))
+                .andReturn()
+                .getResponse()
+                .getHeader("Location");
+
+        assertThat(actual).isEqualTo(expected);
     }
 
     private String getRequestId() {
@@ -66,15 +90,15 @@ class RepeatablePOSTRequestsTests {
                 .format(DateTimeFormatter.RFC_1123_DATE_TIME);
     }
 
-    private MockHttpServletRequestBuilder getPreparedRequest() {
+    private MockHttpServletRequestBuilder getPreparedRequest(ProductDto dto) {
         return post("/products")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(getProductDto()));
+                .content(objectMapper.writeValueAsString(dto));
     }
 
-    private ProductDto getProductDto() {
+    private ProductDto getProductDto(String reference) {
         return new ProductDto(
-                "TEST-42",
+                reference,
                 "Product Name",
                 "Category",
                 new PriceDto(new BigDecimal("0.99"), "EUR"),
