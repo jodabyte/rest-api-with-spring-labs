@@ -13,6 +13,9 @@ import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Tests to ensure that all registered resource locators (endpoints) follow the kebab-case convention.
+ */
 class ResourceLocatorsConventionTests extends TestWithTestContainers {
 
     private static final Pattern KEBAB_CASE_PATH =

@@ -19,12 +19,17 @@ import java.util.UUID;
 
 import static de.jodabyte.restapilabs.azure.api.repeatablerequest.RepeatabilityContract.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.endsWith;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
+/**
+ * Tests to verify the Repeatability concern for HTTP POST requests.
+ */
 @AutoConfigureMockMvc
-class RepeatablePOSTRequestsTests extends TestWithTestContainers {
+class RepeatabilityRequestTests extends TestWithTestContainers {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -50,14 +55,21 @@ class RepeatablePOSTRequestsTests extends TestWithTestContainers {
             Then a Created status response is returned with the ACCEPTED header value.
             """)
     void validMandatoryHeaders() throws Exception {
-        this.sut.perform(getPreparedRequest(getProductDto("validMandatoryHeaders"))
+        String reference = "validMandatoryHeaders";
+        this.sut.perform(getPreparedRequest(getProductDto(reference))
                         .header(HEADER_REQUEST_ID, getRequestId())
                         .header(HEADER_FIRST_SENT, getFirstSend()))
                 .andExpect(status().isCreated())
-                .andExpect(header().stringValues(HEADER_RESULT, ACCEPTED));
+                .andExpect(header().string(HEADER_RESULT, ACCEPTED))
+                .andExpect(header().string("Location", endsWith(reference)));
     }
 
     @Test
+    @DisplayName("""
+            Given a POST request with valid Repeatability headers
+            When the same request is performed multiple times
+            Then the same response is returned from cache with the ACCEPTED header value.
+            """)
     void responsesAreCached() throws Exception {
         var request = getPreparedRequest(getProductDto("responsesAreCached"))
                 .header(HEADER_REQUEST_ID, getRequestId())
