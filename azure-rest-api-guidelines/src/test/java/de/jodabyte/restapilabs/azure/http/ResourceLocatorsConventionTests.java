@@ -1,9 +1,11 @@
 package de.jodabyte.restapilabs.azure.http;
 
+import de.jodabyte.restapilabs.azure.tc.TestContainerConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
@@ -14,8 +16,9 @@ import java.util.regex.Pattern;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@Import(TestContainerConfig.class)
 class ResourceLocatorsConventionTests {
-    
+
     private static final Pattern KEBAB_CASE_PATH =
             Pattern.compile("^/([a-z0-9]+(-[a-z0-9]+)*)?(/[a-z0-9]+(-[a-z0-9]+)*|/\\{.+\\})*$");
 

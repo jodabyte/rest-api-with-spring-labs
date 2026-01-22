@@ -12,5 +12,5 @@ spring:
   # Enable In-Memory Caching
   cache:
     cache-names: "REPEATABILITY_CACHE"
-    caffeine:
-      spec: "expireAfterWrite=5m"
+    redis:
+      time-to-live: "5m"

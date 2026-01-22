@@ -47,19 +47,25 @@ public class RepeatabilityRequestValidator {
 
         if (cachedResponse.isPresent()) {
             log.info("Returning cached response for repeatable request: {}", repeatableRequest);
-            return cachedResponse.get().response();
+            return toResponseEntity(cachedResponse.get());
         }
 
         Object result = pjp.proceed();
 
         if (result instanceof ResponseEntity<?> response) {
-            this.cache.saveResponse(repeatableRequest, new RepeatableResponse(response));
+            this.cache.saveResponse(repeatableRequest, RepeatableResponse.ofResponseEntity(response));
             log.info("Cached response for repeatable request: {}", repeatableRequest);
         } else {
             log.warn("Response is not of type ResponseEntity, cannot cache response for repeatable request: {}", repeatableRequest);
         }
 
         return result;
+    }
+
+    private ResponseEntity<Void> toResponseEntity(RepeatableResponse repeatableResponse) {
+        ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.status(repeatableResponse.status());
+        repeatableResponse.headers().forEach(responseBuilder::header);
+        return responseBuilder.build();
     }
 
     /**
