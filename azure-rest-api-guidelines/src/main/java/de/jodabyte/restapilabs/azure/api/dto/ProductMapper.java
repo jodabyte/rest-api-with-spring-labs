@@ -1,7 +1,7 @@
 package de.jodabyte.restapilabs.azure.api.dto;
 
-import de.jodabyte.restapilabs.azure.service.model.Price;
-import de.jodabyte.restapilabs.azure.service.model.Product;
+import de.jodabyte.restapilabs.azure.domain.model.Price;
+import de.jodabyte.restapilabs.azure.domain.model.Product;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

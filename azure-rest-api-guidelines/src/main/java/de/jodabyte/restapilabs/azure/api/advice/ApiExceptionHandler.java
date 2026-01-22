@@ -1,4 +1,4 @@
-package de.jodabyte.restapilabs.azure.api;
+package de.jodabyte.restapilabs.azure.api.advice;
 
 import de.jodabyte.restapilabs.azure.api.repeatablerequest.IllegalRepeatabilityHeadersException;
 import org.springframework.http.HttpHeaders;
@@ -12,9 +12,15 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import static de.jodabyte.restapilabs.azure.api.repeatablerequest.RepeatabilityContract.HEADER_RESULT;
 import static de.jodabyte.restapilabs.azure.api.repeatablerequest.RepeatabilityContract.REJECTED;
 
+/**
+ * Exception handler for API-related exceptions.
+ */
 @ControllerAdvice
-public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
+    /**
+     * Handles invalid repeatability headers. Returns a 400 Bad Request response with the REJECTED header.
+     */
     @ExceptionHandler(IllegalRepeatabilityHeadersException.class)
     public ResponseEntity<Object> handleIllegalRepeatabilityHeadersException(
             IllegalRepeatabilityHeadersException ex,

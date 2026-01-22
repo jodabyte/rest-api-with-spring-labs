@@ -1,4 +1,4 @@
-package de.jodabyte.restapilabs.azure.service.model;
+package de.jodabyte.restapilabs.azure.domain.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -17,5 +17,5 @@ public class Price {
 
     @Column(name = "price_currency", nullable = false)
     private String currency;
-    
+
 }

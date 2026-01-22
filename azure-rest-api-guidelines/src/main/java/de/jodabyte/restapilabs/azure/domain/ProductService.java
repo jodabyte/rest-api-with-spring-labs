@@ -1,7 +1,7 @@
-package de.jodabyte.restapilabs.azure.service;
+package de.jodabyte.restapilabs.azure.domain;
 
-import de.jodabyte.restapilabs.azure.service.model.Product;
-import de.jodabyte.restapilabs.azure.service.repository.ProductRepository;
+import de.jodabyte.restapilabs.azure.domain.model.Product;
+import de.jodabyte.restapilabs.azure.domain.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

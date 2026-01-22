@@ -2,13 +2,11 @@ package de.jodabyte.restapilabs.azure.http;
 
 import de.jodabyte.restapilabs.azure.api.dto.PriceDto;
 import de.jodabyte.restapilabs.azure.api.dto.ProductDto;
-import de.jodabyte.restapilabs.azure.tc.TestContainerConfig;
+import de.jodabyte.restapilabs.azure.common.TestWithTestContainers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -25,10 +23,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@Import(TestContainerConfig.class)
 @AutoConfigureMockMvc
-class RepeatablePOSTRequestsTests {
+class RepeatablePOSTRequestsTests extends TestWithTestContainers {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 

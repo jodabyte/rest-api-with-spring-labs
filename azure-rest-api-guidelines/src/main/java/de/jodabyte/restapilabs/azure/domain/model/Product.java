@@ -1,4 +1,4 @@
-package de.jodabyte.restapilabs.azure.service.model;
+package de.jodabyte.restapilabs.azure.domain.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
