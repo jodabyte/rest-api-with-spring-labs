@@ -1,37 +1,30 @@
 package de.jodabyte.restapilabs.azure.http;
 
-import de.jodabyte.restapilabs.azure.api.dto.PriceDto;
-import de.jodabyte.restapilabs.azure.api.dto.ProductDto;
 import de.jodabyte.restapilabs.azure.common.TestWithTestContainers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import tools.jackson.databind.ObjectMapper;
 
-import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import static de.jodabyte.restapilabs.azure.api.repeatablerequest.RepeatabilityContract.*;
+import static de.jodabyte.restapilabs.azure.common.ModelFactory.createPreparedRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.endsWith;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 /**
- * Tests to verify the Repeatability concern for HTTP POST requests.
+ * Tests for HTTP POST idempotency using Repeatability headers.
  */
 @AutoConfigureMockMvc
-class RepeatabilityRequestTests extends TestWithTestContainers {
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
+class CreateResourceIdempotencyTests extends TestWithTestContainers {
 
     @Autowired
     private MockMvc sut;
@@ -43,7 +36,7 @@ class RepeatabilityRequestTests extends TestWithTestContainers {
             Then a BadRequest status response is returned with the REJECTED header value.
             """)
     void missingMandatoryHeaders() throws Exception {
-        this.sut.perform(getPreparedRequest(getProductDto("missingMandatoryHeaders")))
+        this.sut.perform(createPreparedRequest("missingMandatoryHeaders"))
                 .andExpect(status().isBadRequest())
                 .andExpect(header().stringValues(HEADER_RESULT, REJECTED));
     }
@@ -56,9 +49,7 @@ class RepeatabilityRequestTests extends TestWithTestContainers {
             """)
     void validMandatoryHeaders() throws Exception {
         String reference = "validMandatoryHeaders";
-        this.sut.perform(getPreparedRequest(getProductDto(reference))
-                        .header(HEADER_REQUEST_ID, getRequestId())
-                        .header(HEADER_FIRST_SENT, getFirstSend()))
+        this.sut.perform(createRepeatableRequest(reference))
                 .andExpect(status().isCreated())
                 .andExpect(header().string(HEADER_RESULT, ACCEPTED))
                 .andExpect(header().string("Location", endsWith(reference)));
@@ -71,9 +62,7 @@ class RepeatabilityRequestTests extends TestWithTestContainers {
             Then the same response is returned from cache with the ACCEPTED header value.
             """)
     void responsesAreCached() throws Exception {
-        var request = getPreparedRequest(getProductDto("responsesAreCached"))
-                .header(HEADER_REQUEST_ID, getRequestId())
-                .header(HEADER_FIRST_SENT, getFirstSend());
+        var request = createRepeatableRequest("responsesAreCached");
 
         String actual = this.sut.perform(request)
                 .andExpect(status().isCreated())
@@ -92,6 +81,12 @@ class RepeatabilityRequestTests extends TestWithTestContainers {
         assertThat(actual).isEqualTo(expected);
     }
 
+    private MockHttpServletRequestBuilder createRepeatableRequest(String reference) {
+        return createPreparedRequest(reference)
+                .header(HEADER_REQUEST_ID, getRequestId())
+                .header(HEADER_FIRST_SENT, getFirstSend());
+    }
+
     private String getRequestId() {
         return UUID.randomUUID().toString();
     }
@@ -99,22 +94,5 @@ class RepeatabilityRequestTests extends TestWithTestContainers {
     private String getFirstSend() {
         return ZonedDateTime.now()
                 .format(DateTimeFormatter.RFC_1123_DATE_TIME);
-    }
-
-    private MockHttpServletRequestBuilder getPreparedRequest(ProductDto dto) {
-        return post("/products")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto));
-    }
-
-    private ProductDto getProductDto(String reference) {
-        return new ProductDto(
-                reference,
-                "Product Name",
-                "Category",
-                new PriceDto(new BigDecimal("0.99"), "EUR"),
-                "Description",
-                null
-        );
     }
 }

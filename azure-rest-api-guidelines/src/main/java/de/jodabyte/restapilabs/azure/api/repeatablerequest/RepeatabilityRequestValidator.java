@@ -34,7 +34,7 @@ public class RepeatabilityRequestValidator {
         this.mapper = mapper;
     }
 
-    @Around(value = "@annotation(org.springframework.web.bind.annotation.PostMapping)")
+    @Around(value = "@annotation(de.jodabyte.restapilabs.azure.api.repeatablerequest.PostRepeatable)")
     public Object validate(ProceedingJoinPoint pjp) throws Throwable {
         RepeatabilityRequest repeatableRequest = this.mapper.map(this.request);
         Optional<RepeatabilityResponse> cachedResponse = this.cache.findResponse(repeatableRequest);
