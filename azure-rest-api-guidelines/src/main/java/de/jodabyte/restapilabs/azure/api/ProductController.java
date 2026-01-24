@@ -27,13 +27,15 @@ public class ProductController extends AbstractController {
     }
 
     @GetMapping
-    public List<ProductDto> getAllProducts() {
-        return this.productMapper.map(this.productService.getProducts());
+    public ResponseEntity<List<ProductDto>> getAllProducts() {
+        List<ProductDto> dtoList = this.productMapper.map(this.productService.getProducts());
+        return ResponseEntity.ok(dtoList);
     }
 
     @GetMapping("/{id}")
-    public ProductDto getProductByReference(@PathVariable Long id) {
-        return this.productMapper.map(this.productService.getProductById(id));
+    public ResponseEntity<ProductDto> getProductByReference(@PathVariable Long id) {
+        ProductDto dto = this.productMapper.map(this.productService.getProductById(id));
+        return ResponseEntity.ok(dto);
     }
 
     @PostMapping

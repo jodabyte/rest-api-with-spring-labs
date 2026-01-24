@@ -32,6 +32,33 @@ camel casing.
 
   - [CreateResourceIdempotencyTests](./src/test/java/de/jodabyte/restapilabs/azure/http/CreateResourceIdempotencyTests.java)
 
+### HTTP Return Codes
+
+- **(TODO)** ✅ DO adhere to the return codes in the following table when the method completes synchronously and is successful:
+
+  - [CreateResourceIdempotencyTests](./src/test/java/de/jodabyte/restapilabs/azure/http/CreateResourceIdempotencyTests.java)
+  - [UpdateDeleteResourceIdempotencyTests](./src/test/java/de/jodabyte/restapilabs/azure/http/UpdateDeleteResourceIdempotencyTests.java)
+
+| Method    | Description                                          | Response Status Code                       |
+| --------- | ---------------------------------------------------- | ------------------------------------------ |
+| ~~PATCH~~ | ~~Create/Modify the resource with JSON Merge Patch~~ | ~~`200-OK`, `201-Created`~~                |
+| PUT       | ~~Create~~/Replace the _whole_ resource              | `200-OK`~~, `201-Created`~~                |
+| POST      | Create new resource (ID set by service)              | `201-Created` with URL of created resource |
+| POST      | Action                                               | `200-OK`                                   |
+| GET       | Read (i.e. list) a resource collection               | `200-OK`                                   |
+| GET       | Read the resource                                    | `200-OK`                                   |
+| DELETE    | Remove the resource                                  | `204-No Content`\; avoid `404-Not Found`   |
+
+- **(TODO)** ✅ DO return status code 202-Accepted and follow the guidance in Long-Running Operations & Jobs when a PUT, POST, or DELETE method completes asynchronously.
+
+- ✅ DO return the state of the resource after a PUT, PATCH, POST, or GET operation with a 200-OK or 201-Created.
+
+- ✅ DO return a 204-No Content without a resource/body for a DELETE operation (even if the URL identifies a resource that does not exist; do not return 404-Not Found)
+
+  - [UpdateDeleteResourceIdempotencyTests](./src/test/java/de/jodabyte/restapilabs/azure/http/UpdateDeleteResourceIdempotencyTests.java)
+
+- **(TODO)** ✅ DO return a 200-OK from a POST Action. Include a body in the response, even if it has not properties, to allow properties to be added in the future if needed.
+
 # Appendix
 
 ## Idempotency
