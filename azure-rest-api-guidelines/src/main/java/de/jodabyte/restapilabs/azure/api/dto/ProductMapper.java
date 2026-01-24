@@ -14,8 +14,10 @@ public interface ProductMapper {
 
     ProductDto map(Product product);
 
-    @Mapping(target = "id", ignore = true)
     Product map(ProductDto productDto);
+
+    @Mapping(target = "id", ignore = true)
+    Product map(ProductCreateDto dto);
 
     PriceDto map(Price price);
 

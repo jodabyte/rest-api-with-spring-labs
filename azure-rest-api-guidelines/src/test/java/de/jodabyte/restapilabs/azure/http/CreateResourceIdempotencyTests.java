@@ -13,9 +13,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import static de.jodabyte.restapilabs.azure.api.repeatablerequest.RepeatabilityContract.*;
-import static de.jodabyte.restapilabs.azure.common.ModelFactory.createPreparedRequest;
+import static de.jodabyte.restapilabs.azure.common.ModelFactory.createRequestForPost;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.endsWith;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -36,7 +35,7 @@ class CreateResourceIdempotencyTests extends TestWithTestContainers {
             Then a BadRequest status response is returned with the REJECTED header value.
             """)
     void missingMandatoryHeaders() throws Exception {
-        this.sut.perform(createPreparedRequest("missingMandatoryHeaders"))
+        this.sut.perform(createRequestForPost())
                 .andExpect(status().isBadRequest())
                 .andExpect(header().stringValues(HEADER_RESULT, REJECTED));
     }
@@ -48,11 +47,10 @@ class CreateResourceIdempotencyTests extends TestWithTestContainers {
             Then a Created status response is returned with the ACCEPTED header value.
             """)
     void validMandatoryHeaders() throws Exception {
-        String reference = "validMandatoryHeaders";
-        this.sut.perform(createRepeatableRequest(reference))
+        this.sut.perform(createRepeatablePostRequest())
                 .andExpect(status().isCreated())
                 .andExpect(header().string(HEADER_RESULT, ACCEPTED))
-                .andExpect(header().string("Location", endsWith(reference)));
+                .andExpect(header().exists("Location"));
     }
 
     @Test
@@ -62,7 +60,7 @@ class CreateResourceIdempotencyTests extends TestWithTestContainers {
             Then the same response is returned from cache with the ACCEPTED header value.
             """)
     void responsesAreCached() throws Exception {
-        var request = createRepeatableRequest("responsesAreCached");
+        var request = createRepeatablePostRequest();
 
         String actual = this.sut.perform(request)
                 .andExpect(status().isCreated())
@@ -81,8 +79,8 @@ class CreateResourceIdempotencyTests extends TestWithTestContainers {
         assertThat(actual).isEqualTo(expected);
     }
 
-    private MockHttpServletRequestBuilder createRepeatableRequest(String reference) {
-        return createPreparedRequest(reference)
+    private MockHttpServletRequestBuilder createRepeatablePostRequest() {
+        return createRequestForPost()
                 .header(HEADER_REQUEST_ID, getRequestId())
                 .header(HEADER_FIRST_SENT, getFirstSend());
     }

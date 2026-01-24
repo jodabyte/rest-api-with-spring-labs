@@ -15,7 +15,7 @@ public abstract class AbstractController {
      * Builds a {@link ResponseEntity} with 201 Created status and with the Location header set to the URI of the
      * created resource.
      */
-    protected ResponseEntity<Void> get201CreatedResponse(String methodName, String id) {
+    protected ResponseEntity<Void> get201CreatedResponse(String methodName, Long id) {
         return ResponseEntity.created(getLocationHeaderUri(
                         this.getClass(),
                         methodName,
@@ -28,7 +28,7 @@ public abstract class AbstractController {
     /**
      * Builds a {@link URI} for the Location header based on the given controller type, method name, and path variable.
      */
-    protected URI getLocationHeaderUri(Class<?> controllerType, String methodName, String pathVariable) {
+    protected URI getLocationHeaderUri(Class<?> controllerType, String methodName, Long pathVariable) {
         return MvcUriComponentsBuilder
                 .fromMethodName(controllerType, methodName, pathVariable)
                 .build()

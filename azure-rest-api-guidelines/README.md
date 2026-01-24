@@ -23,10 +23,19 @@ camel casing.
 
 ### Exactly Once Behavior = Idempotency
 
-- **(TODO)** ✅ DO ensure that all HTTP methods are idempotent.
+- ✅ DO ensure that all HTTP methods are idempotent.
 
-- ☑️ YOU SHOULD use PUT or PATCH to create a resource as these HTTP methods are easy to implement, allow the customer to name their own resource, and are idempotent.
+  - [CreateResourceIdempotencyTests](./src/test/java/de/jodabyte/restapilabs/azure/http/CreateResourceIdempotencyTests.java)
+  - [UpdateDeleteResourceIdempotencyTests](./src/test/java/de/jodabyte/restapilabs/azure/http/UpdateDeleteResourceIdempotencyTests.java)
 
 - ✔️ YOU MAY use POST to create a resource but you must make it idempotent and, of course, the response MUST return the URL of the created resource with a 201-Created. One way to make POST idempotent is to use the Repeatability-Request-ID & Repeatability-First-Sent headers (See Repeatability of requests).
 
   - [CreateResourceIdempotencyTests](./src/test/java/de/jodabyte/restapilabs/azure/http/CreateResourceIdempotencyTests.java)
+
+# Appendix
+
+## Idempotency
+
+To impement HTTP POST idempotent, this lab uses a header based aproach based on the specification [Repeatable Requests Version 1.0](https://docs.oasis-open.org/odata/repeatable-requests/v1.0/repeatable-requests-v1.0.html). 
+
+The HTTP POST methods must to be annotated with `@PostRepeatable` to be able to be processed by the AOP aspect. The request and generated response are temporarily cached in order to detect a client's retry actions.

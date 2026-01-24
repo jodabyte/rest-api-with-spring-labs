@@ -13,7 +13,7 @@ public class DatabaseConfig {
     @Bean
     DataSource dataSource() {
         return new EmbeddedDatabaseBuilder()
-                .setType(EmbeddedDatabaseType.H2)
+                .setType(EmbeddedDatabaseType.HSQL)
                 .setName("azure")
                 .build();
     }
